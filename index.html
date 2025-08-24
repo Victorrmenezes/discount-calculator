@@ -2,113 +2,171 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Installment Calculator</title>
+    <title>Fair Discount</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .container {
-            max-width: 400px;
-            margin: 40px auto;
             background: #fff;
-            padding: 24px 32px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 2rem 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            max-width: 400px;
+            width: 100%;
         }
-        h2 {
+        h1 {
             text-align: center;
-            color: #333;
-            margin-bottom: 24px;
+            color: #2d6cdf;
+            margin-bottom: 1.5rem;
         }
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #555;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
         }
         input, select {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 18px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1em;
+            padding: 0.5rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #bfcbe3;
+            border-radius: 0.4rem;
+            font-size: 1rem;
+            background: #f7fafd;
         }
         button {
             width: 100%;
-            padding: 10px;
-            background: #4CAF50;
+            padding: 0.7rem;
+            background: #2d6cdf;
             color: #fff;
             border: none;
-            border-radius: 5px;
-            font-size: 1em;
+            border-radius: 0.4rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: background 0.2s;
+            margin-bottom: 0.7rem;
         }
         button:hover {
-            background: #388E3C;
+            background: #1b4fa0;
         }
         .result {
-            margin-top: 20px;
-            padding: 12px;
-            background: #e8f5e9;
-            border-radius: 5px;
-            color: #2e7d32;
+            background: #eaf4ff;
+            border-radius: 0.4rem;
+            padding: 1rem;
+            margin-top: 1rem;
             text-align: center;
-            font-size: 1.1em;
+            color: #2d6cdf;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .lang-btn {
+            background: #fff;
+            color: #2d6cdf;
+            border: 1px solid #2d6cdf;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            width: auto;
+            padding: 0.4rem 1rem;
+        }
+        .lang-btn:hover {
+            background: #2d6cdf;
+            color: #fff;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Installment Calculator</h2>
-        <form id="calcForm">
-            <label for="amount">Purchase Amount ($)</label>
-            <input type="number" id="amount" min="0" step="0.01" required>
+        <button class="lang-btn" id="langBtn">Português</button>
+        <h1 id="title">Fair Discount</h1>
+        <form id="discountForm">
+            <label for="purchase" id="labelPurchase">Total Purchase Amount</label>
+            <input type="number" id="purchase" min="0" step="0.01" required>
 
-            <label for="installments">Number of Installments</label>
-            <select id="installments" required>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="6">6</option>
-                <option value="12">12</option>
-            </select>
+            <label for="installments" id="labelInstallments">Number of Installments</label>
+            <input type="number" id="installments" min="1" step="1" default="1" required>
 
-            <label for="rate">Interest Rate (annual, %)</label>
-            <input type="number" id="rate" min="0" step="0.01" value="0" required>
+            <label for="interest" id="labelInterest">Annual Interest Rate (%)</label>
+            <input type="number" id="interest" min="0" step="0.01" required>
 
-            <button type="submit">Calculate</button>
+            <button type="submit" id="calcBtn">Calculate Discount</button>
         </form>
         <div class="result" id="result" style="display:none;"></div>
     </div>
     <script>
-        document.getElementById('calcForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const amount = parseFloat(document.getElementById('amount').value);
-            const installments = parseInt(document.getElementById('installments').value);
-            const rate = parseFloat(document.getElementById('rate').value);
-
-            // Monthly interest rate
-            const monthlyRate = rate > 0 ? (rate / 100) / 12 : 0;
-
-            let installmentValue;
-            if (monthlyRate > 0) {
-                // Standard loan formula
-                installmentValue = amount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -installments));
-            } else {
-                installmentValue = amount / installments;
+        // Language strings
+        const strings = {
+            en: {
+                title: "Fair Discount",
+                labelPurchase: "Total Purchase Amount",
+                labelInstallments: "Number of Installments",
+                labelInterest: "Monthly Interest Rate (%)",
+                calcBtn: "Calculate Discount",
+                langBtn: "Português",
+                result: (discount, cashPrice, discountRate) => 
+                    `Fair discount rate: <b>${discountRate.toFixed(2)}%</b><br>
+                    Fair discount: <b>$${discount.toFixed(2)}</b><br>
+                    Cash price: <b>$${cashPrice.toFixed(2)}</b>`
+            },
+            pt: {
+                title: "Desconto Justo",
+                labelPurchase: "Valor Total da Compra",
+                labelInstallments: "Número de Parcelas",
+                labelInterest: "Taxa de Juros anual (%)",
+                calcBtn: "Calcular Desconto",
+                langBtn: "English",
+                result: (discount, cashPrice, discountRate) => 
+                    `Perc. desconto: <b>${discountRate.toFixed(2)}%</b><br>
+                    Desconto justo: <b>R$${discount.toFixed(2)}</b><br>
+                    Valor à vista: <b>R$${cashPrice.toFixed(2)}</b>`
             }
+        };
 
-            const total = installmentValue * installments;
+        let currentLang = 'pt';
 
-            document.getElementById('result').style.display = 'block';
-            document.getElementById('result').innerHTML =
-                `Each installment: <strong>$${installmentValue.toFixed(2)}</strong><br>
-                 Total to pay: <strong>$${total.toFixed(2)}</strong>`;
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('title').textContent = strings[lang].title;
+            document.getElementById('labelPurchase').textContent = strings[lang].labelPurchase;
+            document.getElementById('labelInstallments').textContent = strings[lang].labelInstallments;
+            document.getElementById('labelInterest').textContent = strings[lang].labelInterest;
+            document.getElementById('calcBtn').textContent = strings[lang].calcBtn;
+            document.getElementById('langBtn').textContent = strings[lang].langBtn;
+            document.getElementById('result').style.display = 'none';
+        }
+
+        document.getElementById('langBtn').addEventListener('click', () => {
+            setLanguage(currentLang === 'en' ? 'pt' : 'en');
         });
+
+        // Discount calculation logic
+        document.getElementById('discountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const purchase = parseFloat(document.getElementById('purchase').value);
+            const installments = parseInt(document.getElementById('installments').value, 10);
+            const interest = Math.pow(1 + parseFloat(document.getElementById('interest').value / 100), 1/12) -1;
+
+            // Calculate present value of installments
+            let pv = 0;
+            const installmentValue = purchase / installments;
+            for (let i = 1; i <= installments; i++) {
+                pv += installmentValue / Math.pow(1 + interest, i);
+            }
+            const discount = purchase - pv;
+            const discountRate = discount/purchase * 100;
+            document.getElementById('result').innerHTML = strings[currentLang].result(discount, pv, discountRate);
+            document.getElementById('result').style.display = 'block';
+        });
+
+        setLanguage(currentLang);
     </script>
 </body>
 </html>
