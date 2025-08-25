@@ -61,7 +61,7 @@
         function setLanguage(lang) {
             currentLang = lang;
             Object.keys(strings[lang]).forEach(element => {
-                document.getElementById(element).textContent = element.text;
+                document.getElementById(element).textContent = strings[lang][element];
             });
         }
 
